@@ -25,10 +25,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp 
 
 HEADERS += \
         mainwindow.h
 
 FORMS += \
         mainwindow.ui
+
+INCLUDEPATH+= C:/opencv/build/include\
+
+LIBS += -LC:/opencv/build/x64/vc14/lib  \
+        -lopencv_world330d
+
