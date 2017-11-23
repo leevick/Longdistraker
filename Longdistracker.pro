@@ -27,10 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \ 
     screen.cpp \
+    camera.cpp \
+    webcamera.cpp
 
 HEADERS += \
         mainwindow.h \
     screen.h \
+    camera.h \
+    webcamera.h
 
 FORMS += \
         mainwindow.ui
