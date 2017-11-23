@@ -17,5 +17,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    m_threadcapture->stopCapture();
+    m_threadcapture->terminate();
+    disconnect(this,0,0,0);
+    delete m_threadcapture;
+    m_camera->close();
+    delete m_camera;
+    delete m_screen;
     delete ui;
 }
