@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <screen.h>
+#include <threadcapture.h>
+#include <webcamera.h>
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +20,9 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    screen *m_screen;
+    threadCapture *m_threadcapture;
+    Camera * m_camera;
 };
 
 #endif // MAINWINDOW_H
