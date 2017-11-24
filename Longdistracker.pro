@@ -29,14 +29,16 @@ SOURCES += \
     screen.cpp \
     camera.cpp \
     webcamera.cpp \
-    threadcapture.cpp
+    threadcapture.cpp \
+    guidecamera.cpp
 
 HEADERS += \
         mainwindow.h \
     screen.h \
     camera.h \
     webcamera.h \
-    threadcapture.h
+    threadcapture.h \
+    guidecamera.h
 
 FORMS += \
         mainwindow.ui
