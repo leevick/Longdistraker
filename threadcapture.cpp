@@ -26,14 +26,14 @@ void threadCapture::stopCapture()
 
 void threadCapture::run()
 {
-    Mat grab;
+    cv::Mat grab;
 
     while (!m_stop) {
         if (!m_camera->getNextFrame(&grab)) {
             msleep(10);
             continue;
         }
-
+        
         emit newImage(grab);
     }
 

@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_camera = new WebCam();
     m_camera->open(0);
     m_threadcapture = new threadCapture();
-    connect(m_threadcapture,SIGNAL(newImage(Mat)),m_screen,SLOT(newImage(Mat)),Qt::DirectConnection);
+    connect(m_threadcapture,SIGNAL(newImage(cv::Mat)),m_screen,SLOT(newImage(cv::Mat)),Qt::DirectConnection);
     m_threadcapture->startCapture(m_camera);
 
 }

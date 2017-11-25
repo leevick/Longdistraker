@@ -8,7 +8,6 @@
 #include <QMutex>
 #include <QTimer>
 #include <opencv2/opencv.hpp>
-using  namespace cv;
 using namespace std;
 
 class screen : public QWidget
@@ -22,7 +21,7 @@ public:
 signals:
 
 public slots:
-    void newImage(Mat matImg);
+    void newImage(cv::Mat matImg);
     void refreshImage();
 
 private:
@@ -31,7 +30,7 @@ private:
     QRect m_targetLoc;
     QLabel *m_label;
     QPixmap m_pixmap;
-    QQueue<Mat> m_frameQue;
+    QQueue<cv::Mat> m_frameQue;
     QMutex m_frameMutex;
     QTimer *m_timer;
 };

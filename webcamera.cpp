@@ -27,7 +27,7 @@ bool WebCam::isOpen()
     return m_vidcap.isOpened();
 }
 
-bool WebCam::getNextFrame(Mat *grab)
+bool WebCam::getNextFrame(cv::Mat *grab)
 {
     if (!grab)
         return false;

@@ -14,7 +14,7 @@ class threadCapture : public QThread
         void stopCapture();
 
     signals:
-        void newImage(Mat grab);
+        void newImage(cv::Mat grab);
 
     protected:
         void run();

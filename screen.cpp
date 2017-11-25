@@ -14,7 +14,7 @@ screen::screen(QLabel *l)
     connect(m_timer,SIGNAL(timeout()),this,SLOT(refreshImage()));
 }
 
-void screen::newImage(Mat matImg)
+void screen::newImage(cv::Mat matImg)
 {
     if(m_frameMutex.tryLock())
     {
@@ -30,7 +30,7 @@ void screen::refreshImage()
     {
         if(!m_frameQue.empty())
         {
-            Mat frame = m_frameQue.dequeue();
+            cv::Mat frame = m_frameQue.dequeue();
             m_frameSize.setWidth(frame.cols);
             m_frameSize.setHeight(frame.rows);
             m_pixmap = m_pixmap.fromImage(Mat2QImage(frame));

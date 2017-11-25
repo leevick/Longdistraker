@@ -12,11 +12,11 @@ public:
     virtual bool open(int device);
     virtual void close();
     virtual bool isOpen();
-    virtual bool getNextFrame(Mat *grab);
+    virtual bool getNextFrame(cv::Mat *grab);
     virtual QSize getImageSize();
 
 private:
-    VideoCapture m_vidcap;
+    cv::VideoCapture m_vidcap;
 };
 
 #endif // WEBCAM_H
