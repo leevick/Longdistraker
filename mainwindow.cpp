@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     m_screen = new screen(ui->labelImage);
-    m_camera = new WebCam();
+    m_camera = new guideCamera();
     m_camera->open(0);
     m_threadcapture = new threadCapture();
     connect(m_threadcapture,SIGNAL(newImage(cv::Mat)),m_screen,SLOT(newImage(cv::Mat)),Qt::DirectConnection);

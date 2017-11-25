@@ -5,6 +5,7 @@
 #include <screen.h>
 #include <threadcapture.h>
 #include <webcamera.h>
+#include <guidecamera.h>
 
 namespace Ui {
 class MainWindow;
