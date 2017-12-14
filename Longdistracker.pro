@@ -30,7 +30,8 @@ SOURCES += \
     camera.cpp \
     webcamera.cpp \
     threadcapture.cpp \
-    guidecamera.cpp
+    guidecamera.cpp \
+    imagingcamera.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -39,7 +40,8 @@ HEADERS += \
     webcamera.h \
     threadcapture.h \
     guidecamera.h \
-    astronomy.h
+    astronomy.h \
+    imagingcamera.h
 
 FORMS += \
         mainwindow.ui
