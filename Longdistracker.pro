@@ -43,11 +43,11 @@ HEADERS += \
 FORMS += \
         mainwindow.ui
 
-INCLUDEPATH+= C:/opencv/build/include \
-              $$quote(C:/Program Files/Basler/pylon 5/Development/include)
+INCLUDEPATH+= $$(OPENCV_INC_PATH) \
+              $$quote($$(PYLON_INC_PATH))
 
-LIBS += -LC:/opencv/build/x64/vc14/lib  \
-        -L$$quote(C:/Program Files/Basler/pylon 5/Development/lib/x64) \
+LIBS += -L$$(OPENCV_LIB_PATH)  \
+        -L$$quote($$(PYLON_LIB_PATH))\
         -lopencv_world330d  \
         -lGCBase_MD_VC120_v3_0_Basler_pylon_v5_0
-
+        
