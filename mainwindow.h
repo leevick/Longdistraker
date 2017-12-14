@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QException>
 #include <screen.h>
 #include <threadcapture.h>
 #include <webcamera.h>
