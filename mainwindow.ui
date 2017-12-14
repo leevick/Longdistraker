@@ -1252,6 +1252,32 @@
           </widget>
          </item>
          <item>
+          <widget class="QFrame" name="frame">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QComboBox" name="comboBoxCameraSelection">
+              <property name="currentText">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonOpenOrClose">
+              <property name="text">
+               <string>连接</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="groupBox_12">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -1274,56 +1300,15 @@
            <property name="title">
             <string>图像显示</string>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_31">
+           <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QStackedWidget" name="stackedWidget">
-              <property name="currentIndex">
-               <number>0</number>
+             <widget class="QLabel" name="labelImage">
+              <property name="text">
+               <string/>
               </property>
-              <widget class="QWidget" name="page">
-               <layout class="QGridLayout" name="gridLayout_2">
-                <item row="0" column="0" alignment="Qt::AlignRight|Qt::AlignBottom">
-                 <widget class="QFrame" name="frame">
-                  <property name="frameShape">
-                   <enum>QFrame::StyledPanel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Raised</enum>
-                  </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_2">
-                   <item>
-                    <widget class="QComboBox" name="comboBoxCameraSelection">
-                     <property name="currentText">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="pushButtonOpenOrClose">
-                     <property name="text">
-                      <string>连接</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-              <widget class="QWidget" name="page_2">
-               <layout class="QHBoxLayout" name="horizontalLayout">
-                <item>
-                 <widget class="QLabel" name="labelImage">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="scaledContents">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
+              <property name="scaledContents">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>
