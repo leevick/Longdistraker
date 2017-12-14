@@ -1,0 +1,9 @@
+#ifndef ASTRONOMY_H
+#define ASTRONOMY_H
+
+#define EARTH_RADIUS 6371004.0
+#define EARTH_MASS 5.965e24
+#define DAY_IN_MS 86164000.0
+#define GRAVITY_CONSTANT 6.67408e-11
+
+#endif // ASTRONOMY_H

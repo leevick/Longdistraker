@@ -38,7 +38,8 @@ HEADERS += \
     camera.h \
     webcamera.h \
     threadcapture.h \
-    guidecamera.h
+    guidecamera.h \
+    astronomy.h
 
 FORMS += \
         mainwindow.ui
