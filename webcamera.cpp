@@ -1,4 +1,8 @@
 #include "webcamera.h"
+WebCam::WebCam()
+{
+    colorConversion = CV_BGR2RGB;
+}
 
 WebCam::~WebCam()
 {

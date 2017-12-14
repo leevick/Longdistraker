@@ -3,17 +3,7 @@
 
 guideCamera::guideCamera()
 {
-    try
-    {
-        PylonInitialize();
-        m_camera = new CInstantCamera( CTlFactory::GetInstance().CreateFirstDevice());
-        m_camera->MaxNumBuffer = 5;
-    }
-    catch(const GenericException &e)
-    {
-        throw QException();
-    }
-
+    colorConversion = CV_GRAY2RGB;
 }
 
 guideCamera::~guideCamera()
@@ -26,6 +16,9 @@ bool guideCamera::open(int id)
 {
     try
     {
+        PylonInitialize();
+        m_camera = new CInstantCamera( CTlFactory::GetInstance().CreateFirstDevice());
+        m_camera->MaxNumBuffer = 5;
         m_camera->StartGrabbing();
         return true;
     }catch(const GenericException &e)

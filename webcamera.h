@@ -6,7 +6,7 @@
 class WebCam : public Camera
 {
 public:
-    WebCam() {}
+    WebCam();
     virtual ~WebCam();
 
     virtual bool open(int device);

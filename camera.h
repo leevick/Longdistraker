@@ -9,6 +9,7 @@
 class Camera : protected QThread
 {
 public:
+    int colorConversion;
     Camera() {}
     virtual ~Camera() {}
 
