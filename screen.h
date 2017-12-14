@@ -16,16 +16,17 @@ class screen : public QWidget
 public:
     explicit screen(QWidget *parent = nullptr);
     explicit screen(QLabel * l);
-    static QImage screen::Mat2QImage(cv::Mat const& src);
+    static QImage screen::Mat2QImage(cv::Mat const& src,int colorConversion);
 
 signals:
 
 public slots:
-    void newImage(cv::Mat matImg);
+    void newImage(cv::Mat matImg,int colorConversion);
     void refreshImage();
 
 private:
     int m_frameRate =0;
+    int m_colorConversion;
     QSize m_frameSize;
     QRect m_targetLoc;
     QLabel *m_label;
