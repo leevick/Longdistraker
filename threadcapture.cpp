@@ -35,7 +35,7 @@ void threadCapture::run()
             continue;
         }
         cv::threshold(grab,detect,20,255,cv::THRESH_BINARY);
-        emit newImage(detect);
+        emit newImage(detect,m_camera->colorConversion);
     }
 
     m_camera->stopCapture();
