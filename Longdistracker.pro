@@ -31,7 +31,9 @@ SOURCES += \
     webcamera.cpp \
     threadcapture.cpp \
     guidecamera.cpp \
-    imagingcamera.cpp
+    imagingcamera.cpp \
+    selectserialportdialog.cpp \
+    exception.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,16 +43,32 @@ HEADERS += \
     threadcapture.h \
     guidecamera.h \
     astronomy.h \
-    imagingcamera.h
+    imagingcamera.h \
+    selectserialportdialog.h \
+    exception.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    selectserialportdialog.ui
 
 INCLUDEPATH+= $$(OPENCV_INC_PATH) \
-              $$quote($$(PYLON_INC_PATH))
+              $$quote($$(PYLON_INC_PATH))\
+              $$(SISODIR5)\include\
+              $$(SISODIR5)\SDKExamples\include\
+              $$(VC14_INC_PATH)\
+              $$(WINDOWSKITS_7_INC_PATH)\
+              $$(WINDOWSKITS_10_INC_PATH)
+
+
 
 LIBS += -L$$(OPENCV_LIB_PATH)  \
         -L$$quote($$(PYLON_LIB_PATH))\
+        -L$$(SISODIR5)\lib\visualc\
+        -L$$(WINDOWSKITS_7_LIB_PATH)\
+        -L$$(WINDOWSKITS_10_LIB_PATH)\
+        -L$$(VC14_LIB_PATH)\
         -lopencv_world330d  \
-        -lGCBase_MD_VC120_v3_0_Basler_pylon_v5_0
+        -lGCBase_MD_VC120_v3_0_Basler_pylon_v5_0\
+        -lclsersis\
+        -lfglib5
         
