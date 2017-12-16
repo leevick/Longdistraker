@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         //Connect signals and slots
         connect(ui->pushButtonOpenOrClose,SIGNAL(clicked(bool)),this,SLOT(connectCamera()));
+        connect((QObject *)m_camera[2],SIGNAL(selectSerialPort(const QList<QString>&,int*)),this,SLOT(selectSerialPort(const QList<QString>&,int*)),Qt::DirectConnection);
         
         // m_camera->open(0);
         // m_threadcapture = new threadCapture();
@@ -30,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
         // m_threadcapture->startCapture(m_camera);
         log("Main window created");
     }
-    catch(QException e)
+    catch(Exception e)
     {
         log("Main window creation failed!");
     }
@@ -39,15 +40,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    m_threadcapture->stopCapture();
-    m_threadcapture->terminate();
+    if(m_threadcapture)
+    {
+        m_threadcapture->stopCapture();
+        m_threadcapture->terminate();
+    }
+
     disconnect(this,0,0,0);
     delete m_threadcapture;
-    for(int i=0;i<4;i++)
+    m_threadcapture = nullptr;
+    for(int i=0;i<3;i++)
     {
-        m_camera[i]->close();
         delete m_camera[i];
     }
+    delete m_camera;
     delete m_screen;
     delete ui;
 }
@@ -80,12 +86,10 @@ void MainWindow::connectCamera()
             ui->pushButtonOpenOrClose->setDisabled(false);
             log("Connection to "+ui->comboBoxCameraSelection->itemText(ui->comboBoxCameraSelection->currentIndex())+" established!");
         }
-        catch(QException e)
+        catch(Exception e)
         {
+            log(e.errorMessage);
             log("Attempt to connect "+ui->comboBoxCameraSelection->itemText(ui->comboBoxCameraSelection->currentIndex())+" failed!");
-            m_threadcapture->terminate();
-            disconnect(m_threadcapture);
-            delete m_threadcapture;
             ui->pushButtonOpenOrClose->setDisabled(false);
             ui->comboBoxCameraSelection->setDisabled(false);
         }
@@ -100,6 +104,7 @@ void MainWindow::connectCamera()
             m_threadcapture->terminate();
             disconnect(m_threadcapture);
             delete m_threadcapture;
+            m_threadcapture = nullptr;
             m_camera[ui->comboBoxCameraSelection->currentIndex()]->close();
 
             isConnected = false;
@@ -110,14 +115,22 @@ void MainWindow::connectCamera()
             log("Disconnected from "+ui->comboBoxCameraSelection->itemText(ui->comboBoxCameraSelection->currentIndex())+"!");
 
         }
-        catch(QException e)
+        catch(Exception e)
         {
+            log(e.errorMessage);
             log("Attempt to disconnect from "+ui->comboBoxCameraSelection->itemText(ui->comboBoxCameraSelection->currentIndex())+" failed!");
             m_threadcapture->terminate();
             disconnect(m_threadcapture);
             delete m_threadcapture;
+            m_threadcapture = nullptr;
         }
     }
 
     return;
+}
+
+void MainWindow::selectSerialPort(const QList<QString> &boardNames,int *selectedPort)
+{
+    selectSerialPortDialog d(this,boardNames,selectedPort);
+    d.exec();
 }

@@ -2,9 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QException>
+#include <Exception>
 #include <QDateTime>
 #include <screen.h>
+#include <selectserialportdialog.h>
+
 #include <threadcapture.h>
 #include <webcamera.h>
 #include <guidecamera.h>
@@ -25,6 +27,7 @@ public:
 
 public slots:
     void connectCamera();
+    void selectSerialPort(const QList<QString> &boardNames, int *selectedPort);
 
 private:
     Ui::MainWindow *ui;
