@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QSize>
+#include <exception.h>
 
 #include <opencv2/opencv.hpp>
 
