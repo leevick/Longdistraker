@@ -3,7 +3,7 @@
 #include <camera.h>
 #include <pylon/PylonIncludes.h>
 
-#include <QException>
+#include <Exception>
 using namespace Pylon;
 using namespace std;
 

@@ -23,7 +23,8 @@ bool guideCamera::open(int id)
         return true;
     }catch(const GenericException &e)
     {
-        throw QException();
+        Exception f("Failed to open guidance camera!");
+        throw f;
         return false;
     }
 }
