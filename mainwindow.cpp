@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
         m_camera[0] = new WebCam();
         m_camera[1] = new guideCamera();
         m_camera[2] = new imagingCamera();
+        m_threadcapture = new threadCapture();
 
         //Connect signals and slots
         connect(ui->pushButtonOpenOrClose,SIGNAL(clicked(bool)),this,SLOT(connectCamera()));
@@ -40,22 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    if(m_threadcapture)
-    {
-        m_threadcapture->stopCapture();
-        m_threadcapture->terminate();
-    }
 
-    disconnect(this,0,0,0);
-    delete m_threadcapture;
-    m_threadcapture = nullptr;
-    for(int i=0;i<3;i++)
-    {
-        delete m_camera[i];
-    }
-    delete m_camera;
-    delete m_screen;
-    delete ui;
 }
 
 void MainWindow::log(QString s)
@@ -77,7 +63,6 @@ void MainWindow::connectCamera()
             ui->pushButtonOpenOrClose->setDisabled(true);
             ui->comboBoxCameraSelection->setDisabled(true);
             m_camera[ui->comboBoxCameraSelection->currentIndex()]->open(0);
-            m_threadcapture = new threadCapture();
             connect(m_threadcapture,SIGNAL(newImage(cv::Mat,int)),m_screen,SLOT(newImage(cv::Mat,int)),Qt::DirectConnection);
             m_threadcapture->startCapture(m_camera[ui->comboBoxCameraSelection->currentIndex()]);
 
@@ -103,8 +88,6 @@ void MainWindow::connectCamera()
             m_threadcapture->stopCapture();
             m_threadcapture->terminate();
             disconnect(m_threadcapture);
-            delete m_threadcapture;
-            m_threadcapture = nullptr;
             m_camera[ui->comboBoxCameraSelection->currentIndex()]->close();
 
             isConnected = false;
@@ -121,8 +104,6 @@ void MainWindow::connectCamera()
             log("Attempt to disconnect from "+ui->comboBoxCameraSelection->itemText(ui->comboBoxCameraSelection->currentIndex())+" failed!");
             m_threadcapture->terminate();
             disconnect(m_threadcapture);
-            delete m_threadcapture;
-            m_threadcapture = nullptr;
         }
     }
 
