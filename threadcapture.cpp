@@ -30,12 +30,12 @@ void threadCapture::run()
     cv::Mat detect;
 
     while (!m_stop) {
+        //msleep(5000);
         if (!m_camera->getNextFrame(&grab)) {
             msleep(10);
             continue;
         }
-        cv::threshold(grab,detect,20,255,cv::THRESH_BINARY);
-        emit newImage(detect,m_camera->colorConversion);
+        emit newImage(grab,m_camera->colorConversion);
     }
 
     m_camera->stopCapture();
