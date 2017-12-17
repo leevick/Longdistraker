@@ -28,6 +28,7 @@ public:
 public slots:
     void connectCamera();
     void selectSerialPort(const QList<QString> &boardNames, int *selectedPort);
+    void print2log(QString s);
 
 private:
     Ui::MainWindow *ui;

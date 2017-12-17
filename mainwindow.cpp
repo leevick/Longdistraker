@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
         //Connect signals and slots
         connect(ui->pushButtonOpenOrClose, SIGNAL(clicked(bool)), this, SLOT(connectCamera()));
         connect((QObject *)m_camera[2], SIGNAL(selectSerialPort(const QList<QString> &, int *)), this, SLOT(selectSerialPort(const QList<QString> &, int *)), Qt::DirectConnection);
+        connect(m_threadcapture,SIGNAL(log(QString)),this,SLOT(print2log(QString)),Qt::QueuedConnection);
 
         log("Main window created");
     }
@@ -38,6 +39,15 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::log(QString s)
+{
+    QDateTime time;
+    time = time.currentDateTime();
+    ui->log->insertPlainText(time.toString("HH:MM:ss") + "\t" + s + "\n");
+    ui->log->moveCursor(QTextCursor::End);
+    return;
+}
+
+void MainWindow::print2log(QString s)
 {
     QDateTime time;
     time = time.currentDateTime();
