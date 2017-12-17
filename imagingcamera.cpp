@@ -2,58 +2,107 @@
 
 imagingCamera::imagingCamera()
 {
+  colorConversion = CV_GRAY2RGB;
+}
+
+imagingCamera::~imagingCamera()
+{
 
 }
-imagingCamera::~imagingCamera(){}
 bool imagingCamera::open(int id)
 {
+
     try
-    {
+    {       
+        int nr_of_buffer	=	8;			// Number of memory buffer
+        int nBoard			=	0;			// Board Number
+        int MaxPics			=	100;		// Number of images to grab
+        int status = 0;
+        const char *dllName = "Acq_DualBaseAreaGray12";
+        int boardType = 0;
+
         QList<QString> boardNames;
 
-        // start up
-        iPortCountCheck = getBoardInfo(boardNames);
-        if((iRet = clGetNumSerialPorts(&iPortCount)) == CL_ERR_NO_ERR && iPortCount == iPortCountCheck ){
+        //emit selectSerialPort(boardNames,&nBoard);
+        nBoard = 0;
 
-             emit selectSerialPort(boardNames,&iPortNr);
-           // initialize serial port
-          if((iRet = clSerialInit(iPortNr, &hSer)) != CL_ERR_NO_ERR){
-            // get size of Buffer
-            clGetErrorText(iRet, NULL, &iErrTextSize);
-            if( iErrTextSize > 0 ){
-              char *ErrText = NULL;
-              // retrieve the Buffer
-              ErrText = new char[iErrTextSize];
-              clGetErrorText(iRet, ErrText, &iErrTextSize);
-              throw Exception("Cannot open connection to CameraLink port:"+QString(ErrText));
-              delete ErrText;
-            }
-            return false;
-          }
-
-          // set baudrate
-          if ( (iRet = clSetBaudRate(hSer, clSerBaudRate)) != CL_ERR_NO_ERR) {
-            // get size of Buffer
-            clGetErrorText(iRet, NULL, &iErrTextSize);
-            if( iErrTextSize > 0 ){
-              char *ErrText = NULL;
-              ErrText = new char[iErrTextSize];
-              clGetErrorText(iRet, ErrText, &iErrTextSize);
-              delete ErrText;
-            }
-            throw Exception("Cannot set baud rate to requested value");
-            return false;
-          }
-          
-          
-
-        }
-        else{
-
+        // Initialization of the microEnable frame grabber
+        if((fg = Fg_Init(dllName,nBoard)) == NULL) 
+        {
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
           return false;
         }
 
-        return true;
+        // Setting the image size
+        int bitAlignment = FG_LEFT_ALIGNED;
+        if (Fg_setParameter(fg,FG_WIDTH,&width,nCamPort) < 0) 
+        {
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+          return false;
+        }
+        if (Fg_setParameter(fg,FG_HEIGHT,&height,nCamPort) < 0) {
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+          return false;
+        }
+
+        if (Fg_setParameter(fg,FG_BITALIGNMENT,&bitAlignment,nCamPort) < 0) 
+        {
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+          return false;
+        }
+
+        // Memory allocation
+        int format;
+        Fg_getParameter(fg,FG_FORMAT,&format,nCamPort);
+        size_t bytesPerPixel = 2;
+        switch(format){
+        case FG_GRAY:	bytesPerPixel = 1; break;
+        case FG_GRAY16:	bytesPerPixel = 2; break;
+        case FG_COL24:	bytesPerPixel = 3; break;
+        case FG_COL32:	bytesPerPixel = 4; break;
+        case FG_COL30:	bytesPerPixel = 5; break;
+        case FG_COL48:	bytesPerPixel = 6; break;
+        }
+
+        size_t totalBufSize = width*height*nr_of_buffer*bytesPerPixel;
+        if((pMem0 = Fg_AllocMemEx(fg,totalBufSize,nr_of_buffer)) == NULL){
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+          return false;
+        } else {
+          //fprintf(stdout,"%d framebuffer allocated for port %d ok\n",nr_of_buffer,nCamPort);
+        }
+
+        
+
+        // check for advanced applets, which have a newly designed trigger, anyway set it to camptibility mode
+        bool isAdvancedApplets = false; // 
+        if (strstr(dllName, "Acq_")){
+          isAdvancedApplets = true;
+        }
+        if (isAdvancedApplets){
+          // set advanced applet into compatibility mode to use current AcquisitionApplets in order to use the same
+          // trigger parameters. Otherwise check applet documentation in order to use the advanced trigger features
+          uint32_t on = FG_ON;
+          status = Fg_setParameterWithType(fg, FG_TRIGGER_LEGACY_MODE, &on, nCamPort, FG_PARAM_TYPE_UINT32_T);
+          if (status != FG_OK){
+            throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+            return false;
+          }
+        }
+
+        // Setting the trigger and grabber mode
+        int		nTriggerMode		= FREE_RUN;
+
+        if(Fg_setParameter(fg,FG_TRIGGERMODE,&nTriggerMode,nCamPort)<0)		
+        {
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+          return false;
+        }
+
+        if((Fg_AcquireEx(fg,nCamPort,GRAB_INFINITE,ACQ_STANDARD,pMem0)) < 0){
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+          return false;
+        }
     }
     catch(Exception e)
     {
@@ -62,10 +111,26 @@ bool imagingCamera::open(int id)
     }
     return true;
 }
-void imagingCamera::close(){return;}
+void imagingCamera::close()
+{
+  Fg_stopAcquireEx(fg,nCamPort,pMem0,0);
+	Fg_FreeMemEx(fg, pMem0);
+	Fg_FreeGrabber(fg);
+  return;
+}
 bool imagingCamera::isOpen(){return true;}
-bool imagingCamera::getNextFrame(cv::Mat *grab){return true;}
-QSize imagingCamera::getImageSize(){return QSize(0,0);}
+bool imagingCamera::getNextFrame(cv::Mat *grab)
+{
+    lastPicNr = Fg_getLastPicNumberBlockingEx(fg,lastPicNr+1,nCamPort,10,pMem0);
+		if(lastPicNr <0){
+      close();
+			throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+		}
+    grab->create(height,width,CV_8U);
+    memcpy(grab->data,(uchar *)Fg_getImagePtrEx(fg,lastPicNr,0,pMem0),height*width);
+  return !grab->empty();
+}
+QSize imagingCamera::getImageSize(){return QSize(4096,3072);}
 
 int imagingCamera::getBoardInfo(QList<QString> &list)
 {

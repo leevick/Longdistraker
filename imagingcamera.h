@@ -16,6 +16,8 @@
 #include <fgrab_define.h>
 #include <SisoDisplay.h>
 
+enum Tap{Base,Medium,Tap8,Tap10};
+
 class imagingCamera : public Camera
 {
     Q_OBJECT
@@ -24,22 +26,20 @@ public:
     ~imagingCamera();
     bool open(int id);
     void close();
+
     bool isOpen();
     bool getNextFrame(cv::Mat *grab);
     QSize getImageSize();
 signals:
     void selectSerialPort(const QList<QString> &boardNames,int *selectedPort);
-
+    
 private:
-    void *hSer = NULL;  // reference to serial port
-    int iPortNr = -1;
-    unsigned int iPortCount = 0;  // count of serial port in whole system
-    int iPortCountCheck = -1;
-    int iRet = CL_ERR_NO_ERR;
-
-    unsigned int iErrTextSize = 0;
-    unsigned int clSerBaudRate = CL_BAUDRATE_9600;	// baud rate of serial port, normally 9600
-
+    Fg_Struct *fg;
+    int nCamPort		=	PORT_A;		// Port (PORT_A / PORT_B)
+    dma_mem * pMem0;
+    frameindex_t lastPicNr = 0;
+    int width = 4096;
+    int height = 3072;
     int imagingCamera::getBoardInfo(QList<QString> &list);
 };
 
