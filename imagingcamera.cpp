@@ -127,7 +127,7 @@ bool imagingCamera::getNextFrame(cv::Mat *grab)
 			throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
 		}
     grab->create(height,width,CV_8U);
-    memcpy(grab->data,(uchar *)Fg_getImagePtrEx(fg,lastPicNr,0,pMem0),height*width);
+    grab->data =(uchar *)Fg_getImagePtrEx(fg,lastPicNr,0,pMem0);
   return !grab->empty();
 }
 QSize imagingCamera::getImageSize(){return QSize(4096,3072);}
