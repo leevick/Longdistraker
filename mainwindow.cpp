@@ -14,17 +14,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
         ui->comboBoxCameraSelection->addItem("Simulation Source");
 
         //Allocate Memory
-        m_screen = new screen(ui->labelImage);
         m_camera = new Camera *[4];
         m_camera[0] = new WebCam();
-        m_camera[1] = new guideCamera();
+        //m_camera[1] = new guideCamera();
         m_camera[2] = new imagingCamera();
-        m_threadcapture = new threadCapture();
+        m_recorder = new Recorder();
+
+        m_recorder->moveToThread(&threadVideoIO);
+        connect(&threadVideoIO,&QThread::finished,m_recorder,&QObject::deleteLater);
+        threadVideoIO.start(QThread::HighestPriority);
 
         //Connect signals and slots
-        connect(ui->pushButtonOpenOrClose, SIGNAL(clicked(bool)), this, SLOT(connectCamera()));
-        connect((QObject *)m_camera[2], SIGNAL(selectSerialPort(const QList<QString> &, int *)), this, SLOT(selectSerialPort(const QList<QString> &, int *)), Qt::DirectConnection);
-        connect(m_threadcapture,SIGNAL(log(QString)),this,SLOT(print2log(QString)),Qt::QueuedConnection);
+        connect(ui->pushButtonOpenOrClose, SIGNAL(released(void)), this, SLOT(handleCaptureRequest(void)));
+        // connect(m_camera[2], SIGNAL(selectSerialPort(const QList<QString> &, int *)), this, SLOT(selectSerialPort(const QList<QString> &, int *)), Qt::BlockingQueuedConnection);
+        connect(m_recorder,SIGNAL(selectVideoPath(string &)),this,SLOT(selectVideoPath(string &)),Qt::BlockingQueuedConnection);
+        connect(ui->pushButtonRecord,SIGNAL(released(void)),this,SLOT(startOrStopRecording(void)));
+        // connect(this,SIGNAL(raiseStartRequest(threadCapture*)),m_recorder,SLOT(handleStartRequest(threadCapture*)),Qt::BlockingQueuedConnection);
+        connect(this,SIGNAL(raiseRecordStartRequest(imagingCamera*)),m_recorder,SLOT(handleStartRequest(imagingCamera*)));
+        connect(this,SIGNAL(raiseRecordStopRequest(void)),m_recorder,SLOT(handleStopRequest(void)),Qt::DirectConnection);
 
         log("Main window created");
     }
@@ -56,7 +63,7 @@ void MainWindow::print2log(QString s)
     return;
 }
 
-void MainWindow::connectCamera()
+void MainWindow::handleCaptureRequest()
 {
     QString cameraName = ui->comboBoxCameraSelection->itemText(ui->comboBoxCameraSelection->currentIndex());
     if (!isConnected)
@@ -66,13 +73,22 @@ void MainWindow::connectCamera()
             log("Connecting to " + cameraName + "...");
             ui->pushButtonOpenOrClose->setDisabled(true);
             ui->comboBoxCameraSelection->setDisabled(true);
-            m_camera[ui->comboBoxCameraSelection->currentIndex()]->open(0);
-            connect(m_threadcapture, SIGNAL(newImage(cv::Mat, int)), m_screen, SLOT(newImage(cv::Mat, int)), Qt::DirectConnection);
-            m_threadcapture->startCapture(m_camera[ui->comboBoxCameraSelection->currentIndex()]);
+
+            m_screen = new screen(ui->labelImage,m_camera[ui->comboBoxCameraSelection->currentIndex()]);
+            m_camera[ui->comboBoxCameraSelection->currentIndex()]->moveToThread(&threadCapture);
+            //connect(&threadCapture,&QThread::finished, m_camera[ui->comboBoxCameraSelection->currentIndex()],&QObject::deleteLater);
+
+            threadCapture.start(QThread::NormalPriority);
+            //m_camera[2]->moveToThread(threadRecord);
+            connect(this,SIGNAL(raiseCaptureStartRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStartRequest(void)),Qt::QueuedConnection);
+            connect(this,SIGNAL(raiseCaptureStopRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStopRequest(void)),Qt::QueuedConnection);
+            connect(m_camera[ui->comboBoxCameraSelection->currentIndex()],SIGNAL(sendNewImages(QQueue<cv::Mat>)),m_screen,SLOT(newImage(QQueue<cv::Mat>)));
+            emit raiseCaptureStartRequest();
 
             isConnected = true;
             ui->pushButtonOpenOrClose->setText("Disconnect");
             ui->pushButtonOpenOrClose->setDisabled(false);
+            ui->pushButtonRecord->setDisabled(false);
             log("Connection to " + cameraName + " established!");
         }
         catch (Exception e)
@@ -90,15 +106,17 @@ void MainWindow::connectCamera()
             log("Disconnecting from " + cameraName + "...");
             ui->pushButtonOpenOrClose->setDisabled(true);
 
-            m_threadcapture->stopCapture();
-            m_threadcapture->terminate();
-            disconnect(m_threadcapture);
-            m_camera[ui->comboBoxCameraSelection->currentIndex()]->close();
+            //m_recorder->stopRecording();
+            //m_threadcapture->stopCapture();
+            //m_threadrecord->stopCapture();
+            emit raiseCaptureStopRequest();
+            threadCapture.quit();
 
             isConnected = false;
             ui->pushButtonOpenOrClose->setText("Connect");
             ui->pushButtonOpenOrClose->setDisabled(false);
             ui->comboBoxCameraSelection->setDisabled(false);
+            ui->pushButtonRecord->setDisabled(true);
 
             log("Disconnected from " + cameraName + "!");
         }
@@ -106,11 +124,8 @@ void MainWindow::connectCamera()
         {
             log(e.errorMessage);
             log("Attempt to disconnect from " + cameraName + " failed!");
-            m_threadcapture->terminate();
-            disconnect(m_threadcapture);
         }
     }
-
     return;
 }
 
@@ -119,3 +134,38 @@ void MainWindow::selectSerialPort(const QList<QString> &boardNames, int *selecte
     selectSerialPortDialog d(this, boardNames, selectedPort);
     d.exec();
 }
+
+void MainWindow::selectVideoPath(string & path)
+{
+    QString qpath;
+    QFileDialog d(this,tr("Select path"),".",tr("Any files (*.*)"));
+    d.setFileMode(QFileDialog::AnyFile);
+    qpath= d.getOpenFileName();
+    path = qpath.toStdString();
+    return ;
+}
+
+void MainWindow::startOrStopRecording()
+{
+    try
+    {
+        if(isRecording)
+        {
+           emit raiseRecordStopRequest();
+           ui->pushButtonRecord->setText("Start recording");
+        }
+        else
+        {
+            //emit raiseStartRequest(m_threadrecord);
+            //m_threadrecord->startCapture(m_camera[2],500);
+            emit raiseRecordStartRequest((imagingCamera *)m_camera[ui->comboBoxCameraSelection->currentIndex()]);
+            ui->pushButtonRecord->setText("Stop recording");
+            isRecording = true;
+        }
+    }
+    catch(Exception e)
+    {
+        throw e;
+    }
+}
+

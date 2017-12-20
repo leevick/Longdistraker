@@ -4,13 +4,14 @@
 #include <QMainWindow>
 #include <Exception>
 #include <QDateTime>
+#include <QFileDialog>
 #include <screen.h>
 #include <selectserialportdialog.h>
 
-#include <threadcapture.h>
 #include <webcamera.h>
 #include <guidecamera.h>
 #include <imagingcamera.h>
+#include <recorder.h>
 
 namespace Ui {
 class MainWindow;
@@ -24,19 +25,34 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void log(QString s);
+signals:
+    void raiseCaptureStartRequest();
+    void raiseRecordStartRequest(imagingCamera *Camera);
+    void raiseCaptureStopRequest();
+    void raiseRecordStopRequest();
 
 public slots:
-    void connectCamera();
     void selectSerialPort(const QList<QString> &boardNames, int *selectedPort);
     void print2log(QString s);
+    void selectVideoPath(string & path);
+    void startOrStopRecording();
+
+private slots:
+    void handleCaptureRequest();
 
 private:
     Ui::MainWindow *ui;
     screen *m_screen;
-    threadCapture *m_threadcapture;
+
+    QThread threadCapture;
+    QThread threadRecord;
+    QThread threadVideoIO;
+
     Camera **m_camera;
+    Recorder *m_recorder;
 
     bool isConnected = false;
+    bool isRecording = false;
 };
 
 #endif // MAINWINDOW_H
