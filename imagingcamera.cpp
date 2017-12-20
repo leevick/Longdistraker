@@ -81,7 +81,7 @@ void imagingCamera::open()
             throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
         }
 
-        double nExposureInMicroSec = 200;
+        double nExposureInMicroSec = 25000;
         if(Fg_setParameterWithType(fg,FG_TRIGGER_PULSEFORMGEN0_WIDTH, &nExposureInMicroSec, 0,FG_PARAM_TYPE_DOUBLE) < 0)
         {
             throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
@@ -98,10 +98,6 @@ void imagingCamera::open()
         if(Fg_setParameterWithType(fg,FG_TRIGGERSTATE, &triggerStatus, 0,FG_PARAM_TYPE_UINT32_T) < 0)
         {
             throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
-        }
-
-        if((Fg_AcquireEx(fg,nCamPort,GRAB_INFINITE,ACQ_STANDARD,pMem0)) < 0){
-          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
         }
         m_isOpen = true;
     }
@@ -131,10 +127,10 @@ void imagingCamera::handleStartRequest()
         {
           open();
         }
-        captureTimer=new QTimer();
-        connect(captureTimer,SIGNAL(timeout(void)),this,SLOT(handleTimeout(void)));
-        captureTimer->setInterval(500);
-        //captureTimer->start();
+        if((Fg_AcquireEx(fg,nCamPort,GRAB_INFINITE,ACQ_STANDARD,pMem0)) < 0){
+          throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+        }
+        m_isCapturing = true;
     }
     catch(Exception e)
     {
@@ -148,7 +144,10 @@ void imagingCamera::handleStopRequest()
 {
     try
     {
-        captureTimer->stop();
+        if(Fg_stopAcquireEx(fg,0,pMem0,FG_SYNC)<0)
+        {
+            throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
+        }
         m_isCapturing = false;
     }
     catch(Exception e)
@@ -159,10 +158,6 @@ void imagingCamera::handleStopRequest()
 
 void imagingCamera::handleTimeout()
 {
-    lastPicNr = Fg_getLastPicNumberBlockingEx(fg,lastPicNr+framesPerGrab,nCamPort,10,pMem0);
-        if(lastPicNr <0)
-        {
-            throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
-        }
+
 }
 
