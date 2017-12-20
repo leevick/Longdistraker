@@ -1274,6 +1274,16 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonRecord">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Record</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
