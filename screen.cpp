@@ -4,22 +4,25 @@ screen::screen(QWidget *parent) : QWidget(parent)
 {
 
 }
-screen::screen(QLabel *l)
+screen::screen(QLabel *l,Camera *c)
 {
     m_label = l;
-    m_frameRate = 30;
+    m_frameRate = c->getFps();
+    m_framePerGrab = c->getFramesPerGrab();
+    m_colorConversion = c->getColorConversion();
     m_timer = new QTimer();
     m_timer->setInterval(1000/m_frameRate);
     m_timer->start();
     connect(m_timer,SIGNAL(timeout()),this,SLOT(refreshImage()));
+    qRegisterMetaType<QQueue<cv::Mat>>("QQueue<cv::Mat>");
 }
 
-void screen::newImage(cv::Mat matImg,int colorConversion)
+void screen::newImage(QQueue<cv::Mat> matImg)
 {
-    m_colorConversion = colorConversion;
+    m_colorConversion = m_colorConversion;
     if(m_frameMutex.tryLock())
     {
-        m_frameQue.enqueue(matImg);
+        m_frameQue.append(matImg);
         m_frameMutex.unlock();
     }
     return;

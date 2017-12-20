@@ -7,6 +7,8 @@
 #include <QQueue>
 #include <QMutex>
 #include <QTimer>
+
+#include <camera.h>
 #include <opencv2/opencv.hpp>
 using namespace std;
 
@@ -15,18 +17,19 @@ class screen : public QWidget
     Q_OBJECT
 public:
     explicit screen(QWidget *parent = nullptr);
-    explicit screen(QLabel * l);
+    explicit screen(QLabel * l,Camera *c);
     static QImage screen::Mat2QImage(cv::Mat const& src,int colorConversion);
 
 signals:
 
 public slots:
-    void newImage(cv::Mat matImg,int colorConversion);
+    void newImage(QQueue<cv::Mat> matImg);
     void refreshImage();
 
 private:
-    int m_frameRate =0;
+    int m_frameRate;
     int m_colorConversion;
+    int m_framePerGrab;
     QSize m_frameSize;
     QRect m_targetLoc;
     QLabel *m_label;
