@@ -9,41 +9,38 @@ void Recorder::handleStartRequest(imagingCamera *cam)
 {
     try
     {
-        //emit selectVideoPath(videoPath);
-        video = new cv::VideoWriter();
+        fg = cam->fg;
+        pBuffer = cam->pMem0;
+        void **aviRef = new void*[1];
+        IoCreateAVIGray(aviRef,"test.avi",1024,768,20);
         isRecording = true;
-        cv::Mat temp;
-        temp.create(768,1024,CV_8U);
-        video->open("test.avi",cv::VideoWriter::fourcc('M','J','P','G'),20.0,cv::Size(1024,768),false);
         lastid = Fg_getLastPicNumberEx(cam->fg,0,cam->pMem0);
-        long long currentid=0;
+        qint64 currentIndex=0;
         while(isRecording)
         {
-            currentid = Fg_getLastPicNumberEx(cam->fg,0,cam->pMem0);
-            if(lastid<currentid)
+            currentIndex = Fg_getLastPicNumberEx(cam->fg,0,cam->pMem0);
+            if(lastid<currentIndex)
             {
-                temp.data = (uchar *)Fg_getImagePtrEx(cam->fg,lastid,0,cam->pMem0);
-                video->write(temp);
-                lastid++;
-            }else if(lastid==currentid)
+                IoWriteAVIPicture(aviRef[0],1,(uchar*)Fg_getImagePtrEx(fg,lastid,0,cam->pMem0));
+
+            }else if(lastid==currentIndex)
             {
                 continue;
             }
             else
             {
-                lastid = currentid;
+                lastid= currentIndex;
             }
         }
-        currentid = Fg_getLastPicNumberEx(cam->fg,0,cam->pMem0);
-        while(lastid<=currentid)
+        currentIndex = Fg_getLastPicNumberEx(cam->fg,0,cam->pMem0);
+        while(lastid<currentIndex)
         {
-            temp.data = (uchar *)Fg_getImagePtrEx(cam->fg,lastid,0,cam->pMem0);
-            video->write(temp);
+            IoWriteAVIPicture(aviRef[0],1,(uchar*)Fg_getImagePtrEx(fg,lastid,0,cam->pMem0));
             lastid++;
         }
 
+        IoCloseAVI(aviRef[0]);
 
-        video->release();
     }
     catch(Exception e)
     {
@@ -54,5 +51,14 @@ void Recorder::handleStartRequest(imagingCamera *cam)
 void Recorder::handleStopRequest()
 {
     isRecording = false;
+    //captureTimer->stop();
+    //video->release();
     return;
+}
+
+void Recorder::handleTimeout()
+{
+        frame.data = (uchar *)Fg_getImagePtrEx(fg,lastid,0,pBuffer);
+        lastid+=1;
+        video->write(frame);
 }

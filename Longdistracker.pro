@@ -72,7 +72,8 @@ LIBS += -L$$(OPENCV_LIB_PATH)  \
         -lopencv_world330d  \
         -lGCBase_MD_VC120_v3_0_Basler_pylon_v5_0\
         -lclsersis\
-        -lfglib5
+        -lfglib5\
+        -liolibrt
         
 
 DISTFILES +=

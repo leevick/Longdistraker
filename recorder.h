@@ -7,6 +7,7 @@
 #include<opencv2/opencv.hpp>
 #include<imagingcamera.h>
 #include<taskvideoio.h>
+#include<sisoIo.h>
 
 using namespace std;
 class Recorder : public QObject
@@ -21,13 +22,17 @@ signals:
 public slots:
     void handleStartRequest(imagingCamera *cam);
     void handleStopRequest();
+private slots:
+    void handleTimeout();
 private:
     volatile bool isRecording = false;
     string videoPath;
     cv::VideoWriter *video;
-    unsigned char *pBuffer;
+    cv::Mat frame;
+    dma_mem*pBuffer;
     Fg_Struct *fg;
     long long lastid=0;
+    QTimer *captureTimer;
 
     
 
