@@ -33,7 +33,8 @@ SOURCES += \
     imagingcamera.cpp \
     selectserialportdialog.cpp \
     exception.cpp \
-    recorder.cpp
+    recorder.cpp \
+    taskvideoio.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,7 +46,8 @@ HEADERS += \
     imagingcamera.h \
     selectserialportdialog.h \
     exception.h \
-    recorder.h
+    recorder.h \
+    taskvideoio.h
 
 FORMS += \
         mainwindow.ui \
