@@ -6,6 +6,7 @@
 #include<Exception.h>
 #include<opencv2/opencv.hpp>
 #include<imagingcamera.h>
+#include<taskvideoio.h>
 
 using namespace std;
 class Recorder : public QObject

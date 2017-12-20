@@ -76,12 +76,17 @@ void MainWindow::handleCaptureRequest()
 
             m_screen = new screen(ui->labelImage,m_camera[ui->comboBoxCameraSelection->currentIndex()]);
             m_camera[ui->comboBoxCameraSelection->currentIndex()]->moveToThread(&threadCapture);
-            //connect(&threadCapture,&QThread::finished, m_camera[ui->comboBoxCameraSelection->currentIndex()],&QObject::deleteLater);
-
             threadCapture.start(QThread::NormalPriority);
-            //m_camera[2]->moveToThread(threadRecord);
+
+            m_camera[2]->moveToThread(&threadRecord);
+            threadRecord.start(QThread::TimeCriticalPriority);
+            
+
+
             connect(this,SIGNAL(raiseCaptureStartRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStartRequest(void)),Qt::QueuedConnection);
             connect(this,SIGNAL(raiseCaptureStopRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStopRequest(void)),Qt::QueuedConnection);
+            connect(this,SIGNAL(raiseCaptureStartRequest(void)),m_camera[2],SLOT(handleStartRequest(void)),Qt::QueuedConnection);
+            connect(this,SIGNAL(raiseCaptureStopRequest(void)),m_camera[2],SLOT(handleStopRequest(void)),Qt::QueuedConnection);
             connect(m_camera[ui->comboBoxCameraSelection->currentIndex()],SIGNAL(sendNewImages(QQueue<cv::Mat>)),m_screen,SLOT(newImage(QQueue<cv::Mat>)));
             emit raiseCaptureStartRequest();
 
@@ -138,9 +143,9 @@ void MainWindow::selectSerialPort(const QList<QString> &boardNames, int *selecte
 void MainWindow::selectVideoPath(string & path)
 {
     QString qpath;
-    QFileDialog d(this,tr("Select path"),".",tr("Any files (*.*)"));
+    QFileDialog d(this,tr("Select path"),".",tr("Any files (*.avi)"));
     d.setFileMode(QFileDialog::AnyFile);
-    qpath= d.getOpenFileName();
+    qpath= d.getSaveFileName();
     path = qpath.toStdString();
     return ;
 }
@@ -158,7 +163,7 @@ void MainWindow::startOrStopRecording()
         {
             //emit raiseStartRequest(m_threadrecord);
             //m_threadrecord->startCapture(m_camera[2],500);
-            emit raiseRecordStartRequest((imagingCamera *)m_camera[ui->comboBoxCameraSelection->currentIndex()]);
+            emit raiseRecordStartRequest((imagingCamera *)m_camera[2]);
             ui->pushButtonRecord->setText("Stop recording");
             isRecording = true;
         }
