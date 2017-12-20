@@ -4,6 +4,7 @@
 #include <Exception>
 #include <QMessageBox>
 #include <QList>
+#include <QQueue>
 
 #include <camera.h>
 
@@ -24,23 +25,27 @@ class imagingCamera : public Camera
 public:
     imagingCamera();
     ~imagingCamera();
-    bool open(int id);
-    void close();
+    virtual void open();
+    virtual void close();
+    Fg_Struct *fg;
+    dma_mem * pMem0;
+    
+public slots:
+    virtual void handleStartRequest();
+    virtual void handleStopRequest();
+protected slots:
+    virtual void handleTimeout();
 
-    bool isOpen();
-    bool getNextFrame(cv::Mat *grab);
-    QSize getImageSize();
 signals:
+    void sendNewImages(QQueue<cv::Mat>);
     void selectSerialPort(const QList<QString> &boardNames,int *selectedPort);
     
 private:
-    Fg_Struct *fg;
+
     int nCamPort		=	PORT_A;		// Port (PORT_A / PORT_B)
-    dma_mem * pMem0;
     frameindex_t lastPicNr = 0;
-    int width = 4096;
-    int height = 3072;
-    int imagingCamera::getBoardInfo(QList<QString> &list);
+    QQueue<cv::Mat> images;
+
 };
 
 #endif // IMAGINGCAMERA_H
