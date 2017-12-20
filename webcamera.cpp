@@ -2,6 +2,10 @@
 WebCam::WebCam()
 {
     colorConversion = CV_BGR2RGB;
+    width = 640;
+    height = 480;
+    fps = 25;
+    imageBuffer = new cv::Mat[framesPerGrab];
 }
 
 WebCam::~WebCam()
@@ -9,40 +13,80 @@ WebCam::~WebCam()
     close();
 }
 
-bool WebCam::open(int device)
+void WebCam::open()
 {
-    if (m_vidcap.isOpened())
-        return true;
-
-    if (!m_vidcap.open(device))
-        return false;
-
-    return true;
+    try
+    {
+        if (!m_vidcap.isOpened())
+            m_vidcap.open(0);
+    }
+    catch(Exception e)
+    {
+        throw e;
+    }
 }
 
 void WebCam::close()
 {
-    if (m_vidcap.isOpened())
-        m_vidcap.release();
+    try
+    {
+        if (m_vidcap.isOpened())
+            m_vidcap.release();
+    }
+    catch(Exception e)
+    {
+        throw e;
+    }
 }
 
 bool WebCam::isOpen()
 {
-    return m_vidcap.isOpened();
+    try
+    {
+        return m_vidcap.isOpened();
+    }
+    catch(Exception e)
+    {
+        throw e;
+    }
+}
+void WebCam::handleStartRequest()
+{
+    try
+    {
+        open();
+        captureTimer = new QTimer();
+        connect(captureTimer,SIGNAL(timeout(void)),this,SLOT(handleTimeout(void)),Qt::DirectConnection);
+        captureTimer->setInterval(1000/fps);
+        captureTimer->start();
+        m_isCapturing = true;
+    }
+    catch(Exception e)
+    {
+        throw e;
+    }
 }
 
-bool WebCam::getNextFrame(cv::Mat *grab)
+void WebCam::handleStopRequest()
 {
-    if (!grab)
-        return false;
-
-    m_vidcap >> *grab;
-
-    return !grab->empty();
+    try
+    {
+        captureTimer->stop();
+        this->close();
+        m_isCapturing = false;
+    }
+    catch(Exception e)
+    {
+        throw e;
+    }
+    
 }
 
-// Always fixed using OpenCV interface to USB webcams
-QSize WebCam::getImageSize()
+void WebCam::handleTimeout()
 {
-    return QSize(640, 480);
+    cv::Mat grab;
+    QQueue<cv::Mat> images;
+    m_vidcap>>grab;
+    images.enqueue(grab);
+    emit sendNewImages(images);
 }

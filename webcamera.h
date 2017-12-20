@@ -5,15 +5,21 @@
 
 class WebCam : public Camera
 {
+    Q_OBJECT
 public:
     WebCam();
     virtual ~WebCam();
-
-    virtual bool open(int device);
+    virtual void open();
     virtual void close();
     virtual bool isOpen();
-    virtual bool getNextFrame(cv::Mat *grab);
-    virtual QSize getImageSize();
+public slots:
+    virtual void handleStartRequest();
+    virtual void handleStopRequest();
+protected slots:
+    virtual void handleTimeout();
+
+signals:
+    void sendNewImages(QQueue<cv::Mat>);
 
 private:
     cv::VideoCapture m_vidcap;
