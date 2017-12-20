@@ -1,93 +1,74 @@
 #include "threadcapture.h"
 
-bool threadCapture::startCapture(Camera *camera,int interval)
+bool threadCapture::startCapture(Camera *camera,int interval,QThread::Priority pri)
 {
-    desiredInterval = interval;
-    countTimer = new QTimer();
-    captureTimer = new QTimer();
-
-    if(interval!=0)
+    try
     {
-        desiredFrameRate = 1000/interval;
+        m_camera = camera;
+        m_camera->open(0);
+        desiredInterval = interval;
+        QSize size = m_camera->getImageSize();
+        grab = new cv::Mat[m_camera->framePerGrab];
+        for(int i=0;i<m_camera->framePerGrab;i++)
+        {
+            grab[i].create(size.height(),size.width(),CV_8U);
+        }
+
+        if(interval!=0)
+        {
+            desiredFrameRate = 1000/interval;
+        }
+        else
+        {
+            desiredFrameRate = 0;
+        }
+        canCapture = true;
+        start(pri);
+        return true;
     }
-    else
+    catch(Exception e)
     {
-        desiredFrameRate = 0;
+        throw e;
+        return false;
     }
-
-    if (isRunning())
-        return false;
-
-    if (!camera || !camera->isOpen())
-        return false;
-
-    m_camera = camera;
-    m_stop = false;
-
-    if (!m_camera->startCapture())
-        return false;
-
-
-    countTimer->setInterval(1000);
-    connect(captureTimer,SIGNAL(timeout()),this,SLOT(captureTimeoutHandler()));
-    connect(countTimer,SIGNAL(timeout()),this,SLOT(countTimeoutHandler()));
-    countTimer->start();
-
-    if(desiredInterval!=0)
-    {
-        captureTimer->setInterval(desiredInterval);
-        captureTimer->start();
-    }
-    start(QThread::HighestPriority);
-    return true;
 }
 
 void threadCapture::stopCapture()
 {
-    m_stop = true;
+    canCapture = false;
 }
 
 void threadCapture::run()
 {
-    if(desiredInterval!=0)
+    try
     {
-        while(!m_stop)
+        if(desiredInterval!=0)
         {
-            if (!m_camera->getNextFrame(&grab)) 
+            captureTimer = new QTimer();
+            captureTimer->setInterval(desiredInterval);
+            connect(captureTimer,SIGNAL(timeout()),this,SLOT(captureTimeoutHandler()),Qt::DirectConnection);
+            captureTimer->start();
+        }
+
+        while(canCapture)
+        {
+            if(desiredInterval==0)
             {
-                continue;
+                m_camera->getNextFrame(grab);
+                emit newImage(grab,m_camera->colorConversion,m_camera->framePerGrab);
             }
-        };
+        }
+        if(desiredInterval!=0)
+        captureTimer->stop();
+        m_camera->close();
     }
-    else
+    catch(Exception e)
     {
-        while(!m_stop)
-        {
-            if (!m_camera->getNextFrame(&grab)) 
-            {
-                continue;
-            }
-            emit newImage(grab,m_camera->colorConversion);
-            frameCount++;
-        };
-        
+        throw e;
     }
-    m_camera->stopCapture();
 }
 
 void threadCapture::captureTimeoutHandler()
 {
-    frameCount++;
-    //videoWriter->write(*grab);
-    emit newImage(grab,m_camera->colorConversion);
-
-}
-
-void threadCapture::countTimeoutHandler()
-{
-    std::cout<<"current actual frame rate="<<frameCount<<std::endl;
-    actualFrameRate = frameCount;
-    emit log("current actual frame rate="+QString::number(frameCount,10));
-    frameCount = 0;
-
+    emit newImage(grab,m_camera->colorConversion,m_camera->framePerGrab);
 }

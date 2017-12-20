@@ -6,36 +6,27 @@
 #include <QObject>
 #include "camera.h"
 
-
 class threadCapture : public QThread
 {
     Q_OBJECT
     public:
-        bool startCapture(Camera *camera,int interval=0);
+        bool startCapture(Camera *camera, int interval = 0, QThread::Priority pri = QThread::TimeCriticalPriority);
         void stopCapture();
-
     signals:
-        void newImage(cv::Mat grab,int colorConversion);
-        void log(QString s);
+        void newImage(cv::Mat *grab, int colorConversion, int count);
 
     protected:
         void run();
 
     private:
         Camera *m_camera;
-        int desiredInterval;
+        int desiredInterval = 0;
         int desiredFrameRate = 0;
-        int actualFrameRate = 0;
-        cv::VideoWriter *videoWriter;
-        cv::Mat         grab;
+        cv::Mat *grab;
         QTimer *captureTimer;
-        QTimer *countTimer;
-    volatile bool m_stop;
-    volatile int frameCount=0;
+        volatile bool canCapture = true;
 
     private slots:
-    void captureTimeoutHandler();
-    void countTimeoutHandler();
+        void captureTimeoutHandler();
 };
-
 #endif // THREADCAPTURE_H
