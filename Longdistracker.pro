@@ -29,23 +29,23 @@ SOURCES += \
     screen.cpp \
     camera.cpp \
     webcamera.cpp \
-    threadcapture.cpp \
     guidecamera.cpp \
     imagingcamera.cpp \
     selectserialportdialog.cpp \
-    exception.cpp
+    exception.cpp \
+    recorder.cpp
 
 HEADERS += \
         mainwindow.h \
     screen.h \
     camera.h \
     webcamera.h \
-    threadcapture.h \
     guidecamera.h \
     astronomy.h \
     imagingcamera.h \
     selectserialportdialog.h \
-    exception.h
+    exception.h \
+    recorder.h
 
 FORMS += \
         mainwindow.ui \
@@ -72,3 +72,5 @@ LIBS += -L$$(OPENCV_LIB_PATH)  \
         -lclsersis\
         -lfglib5
         
+
+DISTFILES +=
