@@ -38,7 +38,9 @@ public:
     public slots:
     virtual void handleStartRequest()=0;
     virtual void handleStopRequest()=0;
-    
+    signals:
+    void raiseStartDisplayRequest();
+    void raiseStopDisplayRequest();
 
 protected:
 
