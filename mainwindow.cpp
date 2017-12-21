@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
         m_camera[0] = new WebCam();
         //m_camera[1] = new guideCamera();
         m_camera[2] = new imagingCamera();
+        m_camera[3] = new simCamera();
         m_recorder = new Recorder();
 
         m_recorder->moveToThread(&threadVideoIO);

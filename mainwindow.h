@@ -11,6 +11,7 @@
 #include <webcamera.h>
 #include <guidecamera.h>
 #include <imagingcamera.h>
+#include <simcamera.h>
 #include <recorder.h>
 
 namespace Ui {
