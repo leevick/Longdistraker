@@ -4,8 +4,8 @@ imagingCamera::imagingCamera()
 {
   colorConversion = CV_GRAY2RGB;
   fps = 20;
-  width = 1024;
-  height = 768;
+  width = 1920;
+  height = 1080;
   framesPerGrab = 20;
   imageBuffer = new cv::Mat[framesPerGrab];
   for(int i=0;i<framesPerGrab;i++)
