@@ -78,16 +78,25 @@ void MainWindow::handleCaptureRequest()
             m_camera[ui->comboBoxCameraSelection->currentIndex()]->moveToThread(&threadCapture);
             threadCapture.start(QThread::NormalPriority);
 
-            m_camera[2]->moveToThread(&threadRecord);
-            threadRecord.start(QThread::TimeCriticalPriority);
+            //m_camera[2]->moveToThread(&threadRecord);
+            //threadRecord.start(QThread::TimeCriticalPriority);
             
 
 
             connect(this,SIGNAL(raiseCaptureStartRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStartRequest(void)),Qt::QueuedConnection);
             connect(this,SIGNAL(raiseCaptureStopRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStopRequest(void)),Qt::QueuedConnection);
-            connect(this,SIGNAL(raiseCaptureStartRequest(void)),m_camera[2],SLOT(handleStartRequest(void)),Qt::QueuedConnection);
-            connect(this,SIGNAL(raiseCaptureStopRequest(void)),m_camera[2],SLOT(handleStopRequest(void)),Qt::QueuedConnection);
-            connect(m_camera[ui->comboBoxCameraSelection->currentIndex()],SIGNAL(sendNewImages(QQueue<cv::Mat>)),m_screen,SLOT(newImage(QQueue<cv::Mat>)));
+            if(ui->comboBoxCameraSelection->currentIndex()!=2)
+            {
+                connect(this,SIGNAL(raiseCaptureStartRequest(void)),
+                        m_camera[2],SLOT(handleStartRequest(void)),
+                        Qt::QueuedConnection);
+
+                connect(this,SIGNAL(raiseCaptureStopRequest(void)),
+                        m_camera[2],SLOT(handleStopRequest(void)),
+                        Qt::QueuedConnection);
+            } 
+            connect(m_camera[ui->comboBoxCameraSelection->currentIndex()],SIGNAL(raiseStartDisplayRequest()),m_screen
+                    ,SLOT(handleStartRequest()));
             emit raiseCaptureStartRequest();
 
             isConnected = true;
