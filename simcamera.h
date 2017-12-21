@@ -22,11 +22,8 @@ protected slots:
     void handleNewImageRequest(unsigned char*&buffer);
 
 private:
-    double locationX =0;
-    double locationY =0;
     cv::Mat spaceStation;
     cv::Mat spaceBackground;
-    QTimer *captureTimer;
 };
 
 #endif // SIMCAMERA_H
