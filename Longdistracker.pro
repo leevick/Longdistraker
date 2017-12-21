@@ -34,7 +34,8 @@ SOURCES += \
     selectserialportdialog.cpp \
     exception.cpp \
     recorder.cpp \
-    taskvideoio.cpp
+    taskvideoio.cpp \
+    simcamera.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -47,7 +48,8 @@ HEADERS += \
     selectserialportdialog.h \
     exception.h \
     recorder.h \
-    taskvideoio.h
+    taskvideoio.h \
+    simcamera.h
 
 FORMS += \
         mainwindow.ui \
