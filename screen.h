@@ -7,6 +7,7 @@
 #include <QQueue>
 #include <QMutex>
 #include <QTimer>
+#include <Exception.h>
 
 #include <camera.h>
 #include <opencv2/opencv.hpp>
@@ -18,25 +19,28 @@ class screen : public QWidget
 public:
     explicit screen(QWidget *parent = nullptr);
     explicit screen(QLabel * l,Camera *c);
-    static QImage screen::Mat2QImage(cv::Mat const& src,int colorConversion);
+    ~screen();
 
 signals:
+    void raiseNewImageRequest(unsigned char *&buffer);
 
 public slots:
-    void newImage(QQueue<cv::Mat> matImg);
     void refreshImage();
+    void handleStartRequest();
+    void handleStopRequest();
 
 private:
     int m_frameRate;
-    int m_colorConversion;
-    int m_framePerGrab;
+    Camera *m_camera;
     QSize m_frameSize;
-    QRect m_targetLoc;
     QLabel *m_label;
     QPixmap m_pixmap;
-    QQueue<cv::Mat> m_frameQue;
     QMutex m_frameMutex;
     QTimer *m_timer;
+    std::vector<uchar> m_buffer;
+    cv::Mat tempImg;
+
+    uchar *buffer;
 };
 
 #endif // SCREEN_H
