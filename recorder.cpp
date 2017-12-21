@@ -69,6 +69,10 @@ void Recorder::handleStartRequest(imagingCamera *cam)
             video->write(temp);
         }
         video->release();
+        
+        QProcess *proc = new QProcess();
+        proc->start("cmd");
+        proc->write("del *.raw\n");
 
     }
     catch(Exception e)
