@@ -6,6 +6,7 @@ imagingCamera::imagingCamera()
   fps = 20;
   width = 1920;
   height = 1080;
+  exposureTime = 10000;
   framesPerGrab = 20;
   imageBuffer = new cv::Mat[framesPerGrab];
   for(int i=0;i<framesPerGrab;i++)
@@ -81,7 +82,7 @@ void imagingCamera::open()
             throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
         }
 
-        double nExposureInMicroSec = 25000;
+        double nExposureInMicroSec = exposureTime;
         if(Fg_setParameterWithType(fg,FG_TRIGGER_PULSEFORMGEN0_WIDTH, &nExposureInMicroSec, 0,FG_PARAM_TYPE_DOUBLE) < 0)
         {
             throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
@@ -126,15 +127,18 @@ void imagingCamera::handleStartRequest()
         if(!m_isOpen)
         {
           open();
+          m_isOpen = true;
         }
         if((Fg_AcquireEx(fg,nCamPort,GRAB_INFINITE,ACQ_STANDARD,pMem0)) < 0){
           throw Exception(QString::number(Fg_getLastErrorNumber(fg),10)+":"+QString(Fg_getLastErrorDescription(fg)));
         }
         m_isCapturing = true;
+        emit raiseStartDisplayRequest();
     }
     catch(Exception e)
     {
         close();
+        m_isOpen = false;
         throw e;
     }
 
@@ -159,5 +163,11 @@ void imagingCamera::handleStopRequest()
 void imagingCamera::handleTimeout()
 {
 
+}
+
+void imagingCamera::handleNewImageRequest(unsigned char *&buffer)
+{
+    buffer = (uchar*)Fg_getImagePtrEx(fg,Fg_getLastPicNumberEx(fg,0,pMem0),0,pMem0);
+    //value++;
 }
 

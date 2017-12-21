@@ -35,7 +35,7 @@ public slots:
     virtual void handleStopRequest();
 protected slots:
     virtual void handleTimeout();
-
+    void handleNewImageRequest(unsigned char *&buffer);
 signals:
     void sendNewImages(QQueue<cv::Mat>);
     void selectSerialPort(const QList<QString> &boardNames,int *selectedPort);
