@@ -14,7 +14,7 @@ class Camera : public QObject
 {
     Q_OBJECT
 public:
-    Camera() {qRegisterMetaType<QQueue<cv::Mat>>("QQueue<cv::Mat>");}
+    Camera() {}
     virtual ~Camera(){}
     virtual void open() = 0;
 
@@ -38,6 +38,8 @@ public:
     public slots:
     virtual void handleStartRequest()=0;
     virtual void handleStopRequest()=0;
+    
+    
     signals:
     void raiseStartDisplayRequest();
     void raiseStopDisplayRequest();
@@ -55,6 +57,7 @@ protected:
     QTimer *captureTimer;
     cv::Mat *imageBuffer;
 protected slots:
+    virtual void handleNewImageRequest(unsigned char*&buffer){}
     virtual void handleTimeout()=0;
 };
 
