@@ -4,18 +4,19 @@
 #include<QThread>
 #include<QThreadPool>
 #include<QRunnable>
-
-#include<opencv2/opencv.hpp>
+#include<QProcess>
+#include<iostream>
+#include<stdio.h>
 
 using namespace std;
 class taskVideoIO: public QRunnable
 {
 public:
-    taskVideoIO(cv::Mat mat,int id);
+    taskVideoIO(char *data,int size,int id);
     void run();
 private:
-    cv::Mat img;
+    char *data;
+    int size;
     int id;
 };
-
 #endif // TASKVIDEOIO_H

@@ -1,16 +1,18 @@
 #include "taskvideoio.h"
 
-taskVideoIO::taskVideoIO(cv::Mat mat,int id)
+taskVideoIO::taskVideoIO(char *data,int size,int id)
 {
-    img = mat.clone();
     this->id = id;
+    this->data = data;
+    this->size = size;
 }
 
 void taskVideoIO::run()
 {
-    QString path = QString::number(id)+".raw";
-    ofstream fout(path.toStdString(),ios::trunc);
-    fout<<img;
-    fout.close();
+    char s[10];
+    sprintf(s,"%d.raw",id);
+    FILE *p =fopen(s,"wb");
+    fwrite(data,1,size,p);
+    fclose(p);
     return;
 }
