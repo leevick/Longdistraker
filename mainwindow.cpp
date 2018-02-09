@@ -44,6 +44,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
 
 MainWindow::~MainWindow()
 {
+    threadVideoIO.terminate();
+    threadRecord.terminate();
+    threadCapture.terminate();
 }
 
 void MainWindow::log(QString s)
@@ -86,16 +89,16 @@ void MainWindow::handleCaptureRequest()
 
             connect(this,SIGNAL(raiseCaptureStartRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStartRequest(void)),Qt::QueuedConnection);
             connect(this,SIGNAL(raiseCaptureStopRequest(void)),m_camera[ui->comboBoxCameraSelection->currentIndex()],SLOT(handleStopRequest(void)),Qt::QueuedConnection);
-            if(ui->comboBoxCameraSelection->currentIndex()!=2)
-            {
-                connect(this,SIGNAL(raiseCaptureStartRequest(void)),
-                        m_camera[2],SLOT(handleStartRequest(void)),
-                        Qt::QueuedConnection);
+            // if(ui->comboBoxCameraSelection->currentIndex()!=2)
+            // {
+            //     connect(this,SIGNAL(raiseCaptureStartRequest(void)),
+            //             m_camera[2],SLOT(handleStartRequest(void)),
+            //             Qt::QueuedConnection);
 
-                connect(this,SIGNAL(raiseCaptureStopRequest(void)),
-                        m_camera[2],SLOT(handleStopRequest(void)),
-                        Qt::QueuedConnection);
-            } 
+            //     connect(this,SIGNAL(raiseCaptureStopRequest(void)),
+            //             m_camera[2],SLOT(handleStopRequest(void)),
+            //             Qt::QueuedConnection);
+            // } 
             connect(m_camera[ui->comboBoxCameraSelection->currentIndex()],SIGNAL(raiseStartDisplayRequest()),m_screen
                     ,SLOT(handleStartRequest()));
             emit raiseCaptureStartRequest();

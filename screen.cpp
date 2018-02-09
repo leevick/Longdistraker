@@ -14,7 +14,7 @@ m_pixmap(QPixmap(m_frameSize)),m_timer(new QTimer()),m_camera(c),buffer(new ucha
     l->setPixmap(m_pixmap);
     //setup timer
     m_timer->setInterval(1000/m_frameRate*2);
-    memset(buffer,0,width*height);
+    memset(buffer,0,m_frameSize.width()*m_frameSize.height());
 }
 
 screen::~screen()
